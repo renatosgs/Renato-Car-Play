@@ -1,0 +1,40 @@
+name: Gerar APK Renato Car Play
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "Renato_Car_Play_projeto_v0.1.zip"
+      - ".github/workflows/build-apk.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Preparar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.2.2"
+
+      - name: Extrair projeto
+        run: |
+          unzip -o Renato_Car_Play_projeto_v0.1.zip -d projeto
+          cp -R projeto/renato_car_play/. .
+
+      - name: Compilar APK
+        run: gradle :app:assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Renato-Car-Play-APK
+          path: app/build/outputs/apk/debug/app-debug.apk
